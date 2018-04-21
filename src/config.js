@@ -1,5 +1,6 @@
 var pkg = require('../package.json')
 var config = require('yargs')
+  .env('SONOS2MQTT')
   .usage(pkg.name + ' ' + pkg.version + '\n' + pkg.description + '\n\nUsage: $0 [options]')
   .describe('v', 'Verbosity level')
   .describe('n', 'instance name. used as mqtt client id and as prefix for connected topic')
