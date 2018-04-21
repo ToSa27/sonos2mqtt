@@ -11,6 +11,7 @@ var config = require('yargs')
     'h': 'help',
     'n': 'name',
     'u': 'url',
+    'a': 'address',
     'v': 'verbosity',
     'd': 'publish-distinct'
   })

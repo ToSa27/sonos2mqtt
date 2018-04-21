@@ -56,7 +56,10 @@ function start () {
 
   // Start searching for devices
   log.info('Start searching for Sonos players')
-  search = s.DeviceDiscovery({timeout: 4000})
+  var options = { timeout: 4000 };
+  if (config.address)
+    options.address = config.address;
+  search = s.DeviceDiscovery(options)
   search.on('DeviceAvailable', async (device, model) => {
     log.debug('Found device (%s) with IP: %s', model, device.host)
 
