@@ -10,6 +10,19 @@ let mqttClient
 let search
 let devices = []
 
+function gotDevice (device, model) {
+  device.getZoneAttrs()
+    .then(attrs => {
+      log.info('Found player (%s): %s with IP: %s', model, attrs.CurrentZoneName, device.host)
+      device.name = attrs.CurrentZoneName
+      // hosts.push(host)
+      addDevice(device)
+    })
+    .catch(err => {
+      log.error('Get Zone error ', err)
+    })
+}
+
 function start () {
   log.setLevel(config.verbosity)
   log.info(pkg.name + ' ' + pkg.version + ' starting')
@@ -56,29 +69,26 @@ function start () {
 
   // Start searching for devices
   log.info('Start searching for Sonos players')
-  var options = { timeout: 4000 };
-  if (config.address)
-    options.address = config.address;
-  search = s.DeviceDiscovery(options)
-  search.on('DeviceAvailable', async (device, model) => {
-    log.debug('Found device (%s) with IP: %s', model, device.host)
-
-    device.getZoneAttrs()
-      .then(attrs => {
-        log.info('Found player (%s): %s with IP: %s', model, attrs.CurrentZoneName, device.host)
-        device.name = attrs.CurrentZoneName
-        // hosts.push(host)
-        addDevice(device)
-      })
-      .catch(err => {
-        log.error('Get Zone error ', err)
-      })
-  })
-  search.on('timeout', () => {
-    publishConnectionStatus()
-    s.Listener.on('AlarmClock', listAlarms)
-  })
-
+  if (config.devices) {
+    var devices = config.devices.split(',')
+    for (var i = 0; i < devices.length; i++) {
+      gotDevice(new s.Sonos(devices[i].trim()))
+    }
+  } else {
+    var options = { timeout: 4000 }
+    if (config.address) {
+      options.address = config.address
+    }
+    search = s.DeviceDiscovery(options)
+    search.on('DeviceAvailable', async (device, model) => {
+      log.debug('Found device (%s) with IP: %s', model, device.host)
+      gotDevice(device, model)
+    })
+    search.on('timeout', () => {
+      publishConnectionStatus()
+      s.Listener.on('AlarmClock', listAlarms)
+    })
+  }
   process.on('SIGINT', async () => {
     log.info('Shutting down listeners, please wait')
     return s.Listener.stopListener()

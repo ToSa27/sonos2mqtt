@@ -5,6 +5,8 @@ var config = require('yargs')
   .describe('v', 'Verbosity level')
   .describe('n', 'instance name. used as mqtt client id and as prefix for connected topic')
   .describe('u', 'mqtt broker url. See https://github.com/mqttjs/MQTT.js#connect-using-a-url')
+  .describe('a', 'address of specific interface to listen to during discovery')
+  .descripe('l', 'list of devices (comma separated IP addresses) to use instead of using discovery')
   .describe('d', 'Publish distinct track states')
   .describe('h', 'show help')
   .alias({
@@ -12,6 +14,7 @@ var config = require('yargs')
     'n': 'name',
     'u': 'url',
     'a': 'address',
+    'l': 'devices',
     'v': 'verbosity',
     'd': 'publish-distinct'
   })
